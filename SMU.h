@@ -27,35 +27,35 @@ public:
     int count;
 
     int LSVStepTime;
-    int LSVVoltageStep;
-    int LSVInitialVoltage;
-    int LSVFinalVoltage;
+    float LSVVoltageStep;
+    float LSVInitialVoltage;
+    float LSVFinalVoltage;
     
     int CVStepTime;
-    int CVVoltageStep;
-    int CVInitialVoltage;
-    int CVFinalVoltage;
-    int CVPeakVoltage;
+    float CVVoltageStep;
+    float CVInitialVoltage;
+    float CVFinalVoltage;
+    float CVPeakVoltage;
     int CVCycles;
     
     int DPVPulseTime;
-    int DPVVoltageStep;
-    int DPVInitialVoltage;
-    int DPVFinalVoltage;
-    int DPVPulseVoltage;
+    float DPVVoltageStep;
+    float DPVInitialVoltage;
+    float DPVFinalVoltage;
+    float DPVPulseVoltage;
     int DPVLowTime;
     
     int NPVPulseTime;
-    int NPVVoltageStep;
-    int NPVInitialVoltage;
-    int NPVFinalVoltage;
+    float NPVVoltageStep;
+    float NPVInitialVoltage;
+    float NPVFinalVoltage;
     int NPVLowTime;
 
     void SerialInputInterpretation();
-    void LinearSweepVoltammetry(int StepTime);
-    void CyclicSweepVoltammetry(int StepTime);
-    void DifferentialPulseVoltammetry(int PulseTime, int LowTime);
-    void NormalPulseVoltammetry(int PulseTime, int LowTime);
+    void LinearSweepVoltammetry();
+    void CyclicSweepVoltammetry();
+    void DifferentialPulseVoltammetry();
+    void NormalPulseVoltammetry();
     void SendCurrent();
     void ReadCurrent();
     void ADSSetGain();
