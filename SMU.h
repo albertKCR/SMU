@@ -11,18 +11,18 @@
 #define MUXEN 6
 
 extern Adafruit_MCP4725 DAC;
-extern Adafruit_ADS1115 ADS;
+extern Adafruit_ADS1115 ads;
 
 class SMU
 {
 public:
-    float VoltagePoints[100];
-    double CurrentPackage[50];
-    float multiplier = 0.0001875;
+    String CurrentPackage;
+    //double CurrentPackage[50];
+    float multiplier = 0.000125;
     float LimitVoltage = 4.096;
     float TransimpedanceResistor[4] = {100, 1000, 10000, 100000};
-    int resistorIndex = 3;
-    float lastVoltage;
+    int resistorIndex = 1;
+    float lastReadVoltage;
     double lastCurrent;
     int count;
 
