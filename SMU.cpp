@@ -79,12 +79,12 @@ void SMU::SerialInputInterpretation()
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
         DPVLowTime = restOfString.substring(commaIndex + 1, commaIndexAux).toInt();
 
-        Serial.println(DPVPulseTime);
-        Serial.println(DPVVoltageStep);
-        Serial.println(DPVInitialVoltage);
-        Serial.println(DPVFinalVoltage);
-        Serial.println(DPVPulseVoltage);
-        Serial.println(DPVLowTime);
+        // Serial.println(DPVPulseTime);
+        // Serial.println(DPVVoltageStep);
+        // Serial.println(DPVInitialVoltage);
+        // Serial.println(DPVFinalVoltage);
+        // Serial.println(DPVPulseVoltage);
+        // Serial.println(DPVLowTime);
         DifferentialPulseVoltammetry();
         break;
     case 3:
@@ -147,7 +147,7 @@ void SMU::LinearSweepVoltammetry()
 
 void SMU::CyclicSweepVoltammetry()
 {
-    int contador = 0 ;
+    int contador = 0;
     CurrentPackage = "";
     int timer = 0;
     count = 0;
@@ -198,39 +198,44 @@ void SMU::DifferentialPulseVoltammetry()
     CurrentPackage = "";
     int timer = 0;
     count = 0;
+    int DPVVoltageStepbit = (DPVVoltageStep * 4095) / 5;
+    int DPVInitialVoltagebit = (DPVInitialVoltage * 4095) / 5;
+    int DPVFinalVoltagebit = (DPVFinalVoltage * 4095) / 5;
+    int DPVPulseVoltagebit = (DPVPulseVoltage * 4095) / 5;
 
-    float lastVoltage = DPVInitialVoltage;
+    float lastVoltage = DPVInitialVoltagebit;
+    DAC.setVoltage(lastVoltage, false);
+    ReadCurrent();
 
-    while (lastVoltage < DPVFinalVoltage)
+    while (lastVoltage < DPVFinalVoltagebit)
     {
-        lastVoltage = lastVoltage + DPVPulseVoltage;
+        lastVoltage = lastVoltage + DPVPulseVoltagebit;
         timer = millis();
         while ((millis() - timer) < DPVLowTime)
         {
         }
-        // DAC.setVoltage(lastVoltage, false);
-        // ReadCurrent();
-        Serial.print(lastVoltage);
-        Serial.print(",");
+        DAC.setVoltage(lastVoltage, false);
+        ReadCurrent();
 
-        lastVoltage = lastVoltage - DPVVoltageStep;
+        lastVoltage = lastVoltage - DPVVoltageStepbit;
         timer = millis();
         while ((millis() - timer) < DPVPulseTime)
         {
         }
-        // DAC.setVoltage(lastVoltage, false);
-        // ReadCurrent();
-        Serial.print(lastVoltage);
-        Serial.print(",");
+        DAC.setVoltage(lastVoltage, false);
+        ReadCurrent();
 
-        if (count == 50)
+        if (count == 20)
         {
             SendCurrent();
             count = 0;
         }
         count++;
     }
-    if (count = !0)
+    DAC.setVoltage(DPVFinalVoltagebit, false);
+    ReadCurrent();
+    count++;
+    if (count != 0)
         SendCurrent();
 }
 
@@ -239,38 +244,42 @@ void SMU::NormalPulseVoltammetry()
     CurrentPackage = "";
     int timer = 0;
     count = 0;
+    int NPVVoltageStepbit = (NPVVoltageStep * 4095) / 5;
+    int NPVInitialVoltagebit = (NPVInitialVoltage * 4095) / 5;
+    int NPVFinalVoltagebit = (NPVFinalVoltage * 4095) / 5;
 
-    float lastVoltage = NPVInitialVoltage;
+    float lastVoltage = NPVInitialVoltagebit;
+    DAC.setVoltage(lastVoltage, false);
+    ReadCurrent();
 
-    while (lastVoltage < NPVFinalVoltage)
+    while (lastVoltage < NPVFinalVoltagebit)
     {
-        lastVoltage = lastVoltage + NPVVoltageStep;
-        Serial.print(lastVoltage);
-        Serial.print(",");
-        // DAC.setVoltage(lastVoltage, false);
-        // ReadCurrent();
+        lastVoltage = lastVoltage + NPVVoltageStepbit;
+        DAC.setVoltage(lastVoltage, false);
+        ReadCurrent();
+        timer = millis();
+        while ((millis() - timer) < NPVPulseTime)
+        {
+        }
+        
+        DAC.setVoltage(NPVInitialVoltagebit, false);
+        ReadCurrent();
         timer = millis();
         while ((millis() - timer) < NPVLowTime)
         {
         }
 
-        Serial.print(NPVInitialVoltage);
-        Serial.print(",");
-        // DAC.setVoltage(NPVInitialVoltage, false);
-        // ReadCurrent();
-        timer = millis();
-        while ((millis() - timer) < NPVLowTime)
-        {
-        }
-
-        if (count == 50)
+        if (count == 20)
         {
             SendCurrent();
             count = 0;
         }
         count++;
     }
-    if (count = !0)
+    DAC.setVoltage(NPVFinalVoltagebit, false);
+    ReadCurrent();
+    count++;
+    if (count != 0)
         SendCurrent();
 }
 
