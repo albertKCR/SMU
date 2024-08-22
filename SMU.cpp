@@ -29,13 +29,18 @@ void SMU::SerialInputInterpretation()
         LSVStepTime = restOfString.substring(0, commaIndex).toInt();
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
-        LSVVoltageStep = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() * 0.001;
+        LSVVoltageStep = (restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() * 0.001);
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
-        LSVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat();
+        LSVInitialVoltage = ((restOfString.substring(commaIndexAux + 1, commaIndex).toFloat()))+2.5;
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
-        LSVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat();
+        LSVFinalVoltage = ((restOfString.substring(commaIndex + 1, commaIndexAux).toFloat()))+2.5;
+
+        // Serial.println(LSVStepTime);
+        // Serial.println(LSVVoltageStep,5);
+        // Serial.println(LSVInitialVoltage);
+        // Serial.println(LSVFinalVoltage);
 
         LinearSweepVoltammetry();
         break;
@@ -47,13 +52,13 @@ void SMU::SerialInputInterpretation()
         CVVoltageStep = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() * 0.001;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
-        CVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat();
+        CVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat() + 2.5;
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
-        CVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat();
+        CVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() + 2.5;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
-        CVPeakVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat();
+        CVPeakVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat() + 2.5;
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
         CVCycles = restOfString.substring(commaIndex + 1, commaIndexAux).toInt();
@@ -68,10 +73,10 @@ void SMU::SerialInputInterpretation()
         DPVVoltageStep = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() * 0.001;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
-        DPVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat();
+        DPVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat() + 2.5;
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
-        DPVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat();
+        DPVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() + 2.5;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
         DPVPulseVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat() * 0.001;
@@ -95,19 +100,19 @@ void SMU::SerialInputInterpretation()
         NPVVoltageStep = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() * 0.001;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
-        NPVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat();
+        NPVInitialVoltage = restOfString.substring(commaIndexAux + 1, commaIndex).toFloat() + 2.5;
 
         commaIndexAux = restOfString.indexOf(',', commaIndex + 1);
-        NPVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat();
+        NPVFinalVoltage = restOfString.substring(commaIndex + 1, commaIndexAux).toFloat() + 2.5;
 
         commaIndex = restOfString.indexOf(',', commaIndexAux + 1);
         NPVLowTime = restOfString.substring(commaIndexAux + 1, commaIndex).toInt();
 
-        Serial.println(NPVPulseTime);
-        Serial.println(NPVVoltageStep);
-        Serial.println(NPVInitialVoltage);
-        Serial.println(NPVFinalVoltage);
-        Serial.println(NPVLowTime);
+        // Serial.println(NPVPulseTime);
+        // Serial.println(NPVVoltageStep);
+        // Serial.println(NPVInitialVoltage);
+        // Serial.println(NPVFinalVoltage);
+        // Serial.println(NPVLowTime);
         NormalPulseVoltammetry();
         break;
     default:
@@ -120,7 +125,7 @@ void SMU::LinearSweepVoltammetry()
     CurrentPackage = "";
     int timer = 0;
     count = 0;
-    int LSVVoltageStepbit = (LSVVoltageStep * 4095) / 5;
+    int LSVVoltageStepbit = ceil((LSVVoltageStep * 4095) / 5);
     int LSVInitialVoltagebit = (LSVInitialVoltage * 4095) / 5;
     int LSVFinalVoltagebit = (LSVFinalVoltage * 4095) / 5;
 
@@ -132,17 +137,17 @@ void SMU::LinearSweepVoltammetry()
         while ((millis() - timer) < LSVStepTime)
         {
         }
-        if (count == 20)
+        if (count == 10)
         {
-            SendCurrent();
-            CurrentPackage = "";
-            count = 0;
+           SendCurrent();
+           CurrentPackage = "";
+           count = 0;
         }
         count++;
     }
     if (count = !0)
         SendCurrent();
-    DAC.setVoltage(0x000, false);
+    DAC.setVoltage(2047, false);
 }
 
 void SMU::CyclicSweepVoltammetry()
@@ -166,7 +171,7 @@ void SMU::CyclicSweepVoltammetry()
             while ((millis() - timer) < CVStepTime)
             {
             }
-            if (count == 20)
+            if (count == 10)
             {
                 SendCurrent();
                 count = 0;
@@ -181,7 +186,7 @@ void SMU::CyclicSweepVoltammetry()
             while ((millis() - timer) < CVStepTime)
             {
             }
-            if (count == 20)
+            if (count == 10)
             {
                 SendCurrent();
                 count = 0;
@@ -191,6 +196,7 @@ void SMU::CyclicSweepVoltammetry()
     }
     if (count = !0)
         SendCurrent();
+    DAC.setVoltage(2047, false);
 }
 
 void SMU::DifferentialPulseVoltammetry()
@@ -198,7 +204,7 @@ void SMU::DifferentialPulseVoltammetry()
     CurrentPackage = "";
     int timer = 0;
     count = 0;
-    int DPVVoltageStepbit = (DPVVoltageStep * 4095) / 5;
+    int DPVVoltageStepbit = ceil((DPVVoltageStep * 4095) / 5);
     int DPVInitialVoltagebit = (DPVInitialVoltage * 4095) / 5;
     int DPVFinalVoltagebit = (DPVFinalVoltage * 4095) / 5;
     int DPVPulseVoltagebit = (DPVPulseVoltage * 4095) / 5;
@@ -215,6 +221,8 @@ void SMU::DifferentialPulseVoltammetry()
         {
         }
         DAC.setVoltage(lastVoltage, false);
+        // Serial.print(lastVoltage*5/4095);
+        // Serial.print(",");
         ReadCurrent();
 
         lastVoltage = lastVoltage - DPVVoltageStepbit;
@@ -223,9 +231,11 @@ void SMU::DifferentialPulseVoltammetry()
         {
         }
         DAC.setVoltage(lastVoltage, false);
+        // Serial.print(lastVoltage*5/4095);
+        // Serial.print(",");
         ReadCurrent();
 
-        if (count == 20)
+        if (count == 10)
         {
             SendCurrent();
             count = 0;
@@ -234,9 +244,12 @@ void SMU::DifferentialPulseVoltammetry()
     }
     DAC.setVoltage(DPVFinalVoltagebit, false);
     ReadCurrent();
+    // Serial.print(lastVoltage*5/4095);
+    // Serial.print(",");
     count++;
     if (count != 0)
         SendCurrent();
+    DAC.setVoltage(2047, false);
 }
 
 void SMU::NormalPulseVoltammetry()
@@ -244,43 +257,53 @@ void SMU::NormalPulseVoltammetry()
     CurrentPackage = "";
     int timer = 0;
     count = 0;
-    int NPVVoltageStepbit = (NPVVoltageStep * 4095) / 5;
+    int NPVVoltageStepbit = ceil((NPVVoltageStep * 4095) / 5);
     int NPVInitialVoltagebit = (NPVInitialVoltage * 4095) / 5;
     int NPVFinalVoltagebit = (NPVFinalVoltage * 4095) / 5;
 
+
     float lastVoltage = NPVInitialVoltagebit;
-    DAC.setVoltage(lastVoltage, false);
+    DAC.setVoltage(NPVInitialVoltagebit, false);
     ReadCurrent();
 
     while (lastVoltage < NPVFinalVoltagebit)
     {
         lastVoltage = lastVoltage + NPVVoltageStepbit;
         DAC.setVoltage(lastVoltage, false);
-        ReadCurrent();
+        // Serial.print(lastVoltage*5/4095,3);
+        // Serial.print(",");
         timer = millis();
         while ((millis() - timer) < NPVPulseTime)
         {
         }
-        
-        DAC.setVoltage(NPVInitialVoltagebit, false);
         ReadCurrent();
-        timer = millis();
-        while ((millis() - timer) < NPVLowTime)
-        {
-        }
+        count++;
 
-        if (count == 20)
+        if (count == 10)
         {
             SendCurrent();
             count = 0;
         }
+
+        DAC.setVoltage(NPVInitialVoltagebit, false);
+        // Serial.print(NPVInitialVoltagebit*5/4095,3);
+        // Serial.print(",");
+        timer = millis();
+        while ((millis() - timer) < NPVLowTime)
+        {
+        }
+        ReadCurrent();
         count++;
+
+        if (count == 10)
+        {
+            SendCurrent();
+            count = 0;
+        }
     }
-    DAC.setVoltage(NPVFinalVoltagebit, false);
-    ReadCurrent();
-    count++;
     if (count != 0)
         SendCurrent();
+    DAC.setVoltage(2047, false);
 }
 
 void SMU::SendCurrent()
@@ -299,9 +322,9 @@ void SMU::ReadCurrent()
 {
     int16_t result;
     result = ads.readADC_Differential_0_1();
-    lastReadVoltage = result * multiplier;
+    lastReadVoltage = (result * multiplier);
     lastCurrent = lastReadVoltage / TransimpedanceResistor[resistorIndex];
-    CurrentPackage = CurrentPackage + String(lastReadVoltage, 3) + ",";
+    CurrentPackage = CurrentPackage + String((lastReadVoltage-2.5), 5) + ",";
     ADSSetGain();
     // TransimpedanceAutoScale();
 }

@@ -4,6 +4,7 @@
 #include <Adafruit_MCP4725.h>
 #include <Adafruit_ADS1X15.h>
 #include <Wire.h>
+#include <math.h>
 
 #define MUXA0 3
 #define MUXA1 4
